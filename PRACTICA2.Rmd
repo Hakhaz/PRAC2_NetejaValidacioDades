@@ -1,0 +1,95 @@
+---
+title: 'Pràctica 2: Neteja i validació de les dades'
+author: "Carlos Pérez Martín i Oscar Fernandez Castro"
+date: "18 de mayo de 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+data_train<- read.csv('C:/Users/vodsk/Desktop/UOC/Topologia i cicle de vida de les dades/PRACTICA2/kaggle-titanic-master/input/train.csv',header=T,sep=",", encoding = "UTF-8")
+str(data_train)
+summary(data_train)
+```
+
+<H3>1. Descripció del dataset. Perquè és important i quina pregunta/problema pretén respondre?</H3>
+
+Els datasets obtingut de https://www.kaggle.com, contenen informació sobre els passatgers del titanic. Des de dades demogràfiques dels passatgers fins a si van sobreviure o no al viatge.
+
+En total hi han 3 datatsets:
+
+- train: 12 atributs amb 891 files.
+- test: 11 atributs amb 418 files.
+- gender_submission: 2 atributs amb 418 files.
+
+Els tres datasets formen un conjunt de prova i d'entrenament.
+
+Els atributs que tenim en els diferents datasets són:
+
+- Survival: Supervivent (0 = No, 1 = Si)
+- Pclass: Classe del passatger (1= 1era, 2 = 2ona, 3 = 3ra)
+- Name: Nom
+- Sex: Sexe (female, male)
+- Age: edad
+- Sibsp: Nombre de familiars
+- Parch: Nombre de pares/fills embarcats
+- Ticket: Número d'entrada
+- Fare: Tarifa
+- Cabin: cabina
+- Embarked: Embarcat (C = Cherbourg, Q = Queenstown, S = Southampton)
+
+La pregunta que volem respondre, és quins són els factors més determinants que influexen en la taxa de supervivencia del passatge. Quins atributs tenen un impacte més elevat? (sexe, classe, edad, etc). Per això s'utilitzaran metodes de regressió per avaluar
+
+<H3>2. Integració i selecció de les dades d’interès a analitzar.</H3>
+
+Per començar unificarem els tres datasets en un per fer la neteja de les dades. Desprès en cas necessari ja es separaran de nou en conjunts de prova i d'entrenament.
+
+```{r}
+data_test<- read.csv('C:/Users/vodsk/Desktop/UOC/Topologia i cicle de vida de les dades/PRACTICA2/kaggle-titanic-master/input/test.csv',header=T,sep=",", encoding = "UTF-8")
+data_sub<-read.csv('C:/Users/vodsk/Desktop/UOC/Topologia i cicle de vida de les dades/PRACTICA2/kaggle-titanic-master/input/gender_submission.csv',header=T,sep=",", encoding = "UTF-8")
+
+#unifiquem el dataset de test amb els seus resultats
+data_test <- merge(data_test,data_sub, by="PassengerId")
+
+#juntem les files dels datasets de train i test
+data<-rbind(data_train, data_test)
+```
+
+Ara ja tenim el dataset complet amb 1309 registres i 12 atribtus.
+
+Volem analizar el major nombre d'atributs possibles, pero en el cas de l'atribut Name i el PassangerId, no ens aporten informació, així que els eliminarem.
+
+
+Agafarem l'atribut survived com a referència i utilitzant diferents metodes estadistics, veurem quin impacte tenen sobre aquest atribut.
+
+<H3>3. Neteja de les dades.</H3>
+
+<H3>3.1. Les dades contenen zeros o elements buits? Com gestionaries aquests casos?</H3>
+
+Eliminem els atributs que no ens interessant ja que no aporten informació.
+
+```{r}
+data<-data[ , -which(names(data) %in% c("PassengerId","Name"))]
+
+```
+
+
+L'atribut Age té 263 casos amb valor NA, i l'atribut Embarked 2 casos de valor buit. En cada cas utilitzarem una tècnica diferent, per l'atribut age, substituirem els valors NA's per la mediana (molt similar a la mitjana), i en el cas de l'atribut embarked els modificarem per l'atribut majoritari.
+
+```{r}
+
+data$Embarked[data$Embarked==""]<- "S"
+data$Age[is.na(data$Age)]<-28 #mediana = 28
+
+
+```
+
+
+3.2. Identificació i tractament de valors extrems.
+
+
+```{r}
+boxplot(data$Age,main="Age", col="gray")
+
+boxplot(data$SibSp,main="SibSp", col="gray")
+boxplot(data$Parch,main="Parch", col="gray")
+
