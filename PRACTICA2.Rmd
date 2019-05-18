@@ -37,11 +37,11 @@ Els atributs que tenim en els diferents datasets són:
 - Cabin: cabina
 - Embarked: Embarcat (C = Cherbourg, Q = Queenstown, S = Southampton)
 
-La pregunta que volem respondre, és quins són els factors més determinants que influexen en la taxa de supervivencia del passatge. Quins atributs tenen un impacte més elevat? (sexe, classe, edad, etc). Per això s'utilitzaran metodes de regressió per avaluar
+La pregunta que volem respondre, és quins són els factors més determinants que influeixen en la taxa de supervivència del passatge. Quins atributs tenen un impacte més elevat? (sexe, classe, edat, etc). Per això s'utilitzaran mètodes de regressió per avaluar les relacions entre atributs.
 
 <H3>2. Integració i selecció de les dades d’interès a analitzar.</H3>
 
-Per començar unificarem els tres datasets en un per fer la neteja de les dades. Desprès en cas necessari ja es separaran de nou en conjunts de prova i d'entrenament.
+Per començar unificarem els tres datasets en un per fer la neteja de les dades. Després en cas necessari ja se separaran de nou en conjunts de prova i d'entrenament.
 
 ```{r}
 data_test<- read.csv('C:/Users/vodsk/Desktop/UOC/Topologia i cicle de vida de les dades/PRACTICA2/kaggle-titanic-master/input/test.csv',header=T,sep=",", encoding = "UTF-8")
@@ -54,18 +54,18 @@ data_test <- merge(data_test,data_sub, by="PassengerId")
 data<-rbind(data_train, data_test)
 ```
 
-Ara ja tenim el dataset complet amb 1309 registres i 12 atribtus.
+Ara ja tenim el dataset complet amb 1309 registres i 12 atributs.
 
-Volem analizar el major nombre d'atributs possibles, pero en el cas de l'atribut Name i el PassangerId, no ens aporten informació, així que els eliminarem.
+Volem analitzar el nombre més gran d'atributs possibles, però en el cas de l'atribut Name i el PassangerId, no ens aporten informació, així que els eliminarem.
 
+Agafarem l'atribut survived com a referència i utilitzant diferents mètodes estadístics, veurem quin impacte tenen sobre aquest atribut.
 
-Agafarem l'atribut survived com a referència i utilitzant diferents metodes estadistics, veurem quin impacte tenen sobre aquest atribut.
 
 <H3>3. Neteja de les dades.</H3>
 
 <H3>3.1. Les dades contenen zeros o elements buits? Com gestionaries aquests casos?</H3>
 
-Eliminem els atributs que no ens interessant ja que no aporten informació.
+Eliminem els atributs que no interessen, ja que no aporten informació.
 
 ```{r}
 data<-data[ , -which(names(data) %in% c("PassengerId","Name"))]
