@@ -64,7 +64,7 @@ Agafarem l'atribut survived com a referència i utilitzant diferents mètodes es
 <H3>3. Neteja de les dades.</H3>
 
 Al fer una revisió del tipus de dades, veiem que l'atribut Pclass és de tipus enter, quan hauria de ser de tipus factor.
-En el cas de l'atribut Survived també és de tipus enter quan hauria de ser binari.
+En el cas de l'atribut Survived també és de tipus enter quan hauria de ser binari. L'atribut survived es podría convertir a un atribut de tipus lògic (true/false)
 
 Tipus de dades abans de la conversió
 PassengerId    Survived      Pclass        Name         Sex         Age       SibSp       Parch      Ticket 
@@ -82,6 +82,7 @@ PassengerId    Survived      Pclass        Name         Sex         Age       Si
 sapply(data,class)
 data$Pclass<-as.factor(data$Pclass)
 #data$Survived<-as.raw(data$Survived)
+data$Survived<-as.logical(data$Survived)
 sapply(data,class)
 ```
 
