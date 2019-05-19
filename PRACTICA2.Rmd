@@ -66,9 +66,23 @@ Agafarem l'atribut survived com a referència i utilitzant diferents mètodes es
 Al fer una revisió del tipus de dades, veiem que l'atribut Pclass és de tipus enter, quan hauria de ser de tipus factor.
 En el cas de l'atribut Survived també és de tipus enter quan hauria de ser binari.
 
+Tipus de dades abans de la conversió
+PassengerId    Survived      Pclass        Name         Sex         Age       SibSp       Parch      Ticket 
+  "integer"   "integer"   "integer"    "factor"    "factor"   "numeric"   "integer"   "integer"    "factor" 
+       Fare       Cabin    Embarked 
+"character"    "factor"    "factor" 
+
+Tipus de dades desprès de la conversió
+PassengerId    Survived      Pclass        Name         Sex         Age       SibSp       Parch      Ticket 
+  "integer"       "raw"    "factor"    "factor"    "factor"   "numeric"   "integer"   "integer"    "factor" 
+       Fare       Cabin    Embarked 
+"character"    "factor"    "factor" 
+
 ```{r}
+sapply(data,class)
 data$Pclass<-as.factor(data$Pclass)
 #data$Survived<-as.raw(data$Survived)
+sapply(data,class)
 ```
 
 
@@ -76,12 +90,32 @@ data$Pclass<-as.factor(data$Pclass)
 
 Busquem en tots els atributs els valors NA i buits.
 
+Valors NA
+PassengerId    Survived      Pclass        Name         Sex         Age       SibSp       Parch      Ticket 
+          0           0           0           0           0         263           0           0           0 
+       Fare       Cabin    Embarked 
+          1           0           0 
+          
+Valors buits
+PassengerId    Survived      Pclass        Name         Sex         Age       SibSp       Parch      Ticket 
+          0           0           0           0           0           0           0           0           0 
+       Fare       Cabin    Embarked 
+          0        1014           2 
+          
+
 ```{r}
 sapply(data, function(x) sum(is.na(x)))
 sapply(data, function(x) sum(x==""))
 ```
 
 L'atribut Age té 263 casos amb valor NA, i l'atribut Embarked 2 casos de valor buit. En cada cas utilitzarem una tècnica diferent, per l'atribut age, substituirem els valors NA's per la mediana (molt similar a la mitjana), i en el cas de l'atribut embarked els modificarem per l'atribut majoritari.
+
+Una altra opció pels valors buits de "Age". Substituir els valors NA segons k-Nearest Neighbors (kNN)
+
+```{r}
+library(VIM)
+data$Age <- kNN(data)$Age
+```
 
 ```{r}
 
@@ -92,10 +126,10 @@ data$Age[is.na(data$Age)]<-28 #mediana = 28
 
 En el cas de l'atribut cabina (cabin) tenim 1014 registres buits dels 1309 del dataset. A més els valors que tenim estan molt fragmentats. En aquestes circumstancies l'atibut cabina no ens aportarà informació rellevant o fiable, així que l'eliminarem en la part de selecció d'atributs (apartat 4.1).
 
-L'atribut tarifa (fare) conté un valor NA. En aquest cas el modifiquem i li posem la mitjana.
+L'atribut tarifa (fare) conté un valor NA. En aquest cas el modifiquem i li posem la mitjana. Primer de tot he modificat el tipus de dada de Fare a "numeric". Per a no pasarli un valor fixe, modifiquem la forma de assignar la mitjana al valor nul
 
 ```{r}
-data$Fare[is.na(data$Fare)]<-33.295
+data$Fare[is.na(data$Fare)] <- mean(data$Fare)
 ```
 
 
