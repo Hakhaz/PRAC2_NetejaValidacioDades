@@ -56,22 +56,30 @@ data<-rbind(data_train, data_test)
 
 Ara ja tenim el dataset complet amb 1309 registres i 12 atributs.
 
-Volem analitzar el nombre més gran d'atributs possibles, però en el cas de l'atribut Name i el PassangerId, no ens aporten informació, així que els eliminarem.
+Volem analitzar el nombre més gran d'atributs possibles, però a simple vista, ja podem dir que els atributs Name i PassangerId, no ens aporten informació, així que els eliminarem.
 
-Agafarem l'atribut survived com a referència i utilitzant diferents mètodes estadístics, veurem quin impacte tenen sobre aquest atribut.
+Agafarem l'atribut survived com a referència i utilitzant diferents mètodes estadístics, veurem quin impacte tenen els altres atributs sobre aquest.
 
 
 <H3>3. Neteja de les dades.</H3>
 
-<H3>3.1. Les dades contenen zeros o elements buits? Com gestionaries aquests casos?</H3>
-
-Eliminem els atributs que no interessen, ja que no aporten informació.
+Al fer una revisió del tipus de dades, veiem que l'atribut Pclass és de tipus enter, quan hauria de ser de tipus factor.
+En el cas de l'atribut Survived també és de tipus enter quan hauria de ser binari.
 
 ```{r}
-data<-data[ , -which(names(data) %in% c("PassengerId","Name"))]
-
+data$Pclass<-as.factor(data$Pclass)
+#data$Survived<-as.raw(data$Survived)
 ```
 
+
+<H3>3.1. Les dades contenen zeros o elements buits? Com gestionaries aquests casos?</H3>
+
+Busquem en tots els atributs els valors NA i buits.
+
+```{r}
+sapply(data, function(x) sum(is.na(x)))
+sapply(data, function(x) sum(x==""))
+```
 
 L'atribut Age té 263 casos amb valor NA, i l'atribut Embarked 2 casos de valor buit. En cada cas utilitzarem una tècnica diferent, per l'atribut age, substituirem els valors NA's per la mediana (molt similar a la mitjana), i en el cas de l'atribut embarked els modificarem per l'atribut majoritari.
 
@@ -80,16 +88,97 @@ L'atribut Age té 263 casos amb valor NA, i l'atribut Embarked 2 casos de valor 
 data$Embarked[data$Embarked==""]<- "S"
 data$Age[is.na(data$Age)]<-28 #mediana = 28
 
-
 ```
+
+En el cas de l'atribut cabina (cabin) tenim 1014 registres buits dels 1309 del dataset. A més els valors que tenim estan molt fragmentats. En aquestes circumstancies l'atibut cabina no ens aportarà informació rellevant o fiable, així que l'eliminarem en la part de selecció d'atributs (apartat 4.1).
+
+L'atribut tarifa (fare) conté un valor NA. En aquest cas el modifiquem i li posem la mitjana.
+
+```{r}
+data$Fare[is.na(data$Fare)]<-33.295
+```
+
 
 
 3.2. Identificació i tractament de valors extrems.
 
+Busquem valors extrems en els atributs númerics. Comencem amb un mètode molt visualt, el blotpox.
 
 ```{r}
-boxplot(data$Age,main="Age", col="gray")
 
-boxplot(data$SibSp,main="SibSp", col="gray")
-boxplot(data$Parch,main="Parch", col="gray")
+par(mfrow=c(2,2))
+for(i in 2:ncol(data)) #ignorem PassengerId
+{
+  if ((is.numeric(data[,i]))||(is.integer(data[,i])))
+  {
+    boxplot(data[,i], main = colnames(data)[i], width=100) 
+  }
+  
+}
+
+```
+
+
+```{r}
+boxplot.stats(data$Age)$out
+boxplot.stats(data$SibSp)$out
+boxplot.stats(data$Parch)$out
+boxplot.stats(data$Fare)$out
+```
+
+
+FALTA REVISAR ELS OUTLIER!! Els camps edat, SibSp i Parch semblen valors correctes que surten fora del boxplot perquè tenim molts valors iguals.
+EL cas de Fare s'ha de mirar millor.
+
+<H3>4. Anàlisi de les dades.</H3>
+<H3>4.1. Selecció dels grups de dades que es volen analitzar/comparar (planificació dels anàlisis a aplicar).</H3>
+
+Com ja hem comentat anteriorment, tenim atributs que no aporten cap informació útil (PassengerId, Name), i d'altres que tenen masses registres buits perquè puguin aportar informació valida (Cabin). Els eliminem.
+
+```{r}
+data<-data[ , -which(names(data) %in% c("PassengerId","Name","Cabin"))]
+```
+
+<H3>4.2. Comprovació de la normalitat i homogeneïtat de la variància.</H3>
+
+Per comprobar la normailitat de les dades fem servir un anàlisi visual (qqplot i histograma) i el test shapiro-wilk.
+
+```{r}
+
+par(mfrow=c(2,2))
+for(i in 1:ncol(data))
+{
+  if ((is.numeric(data[,i]))|(is.integer(data[,i])))
+  {
+    qqnorm(data[,i], main = colnames(data)[i]);qqline(data[,i])
+    hist(data[,i], main = colnames(data)[i])
+  }
+}
+
+```
+
+Apliquem l'algoritme de shapiro-wilk.
+
+```{r}
+shapiro.test(data$Age)
+shapiro.test(data$SibSp)
+shapiro.test(data$Parch)
+shapiro.test(data$Fare)
+```
+
+Els tests de shapiro-wilk ens retornen un p-valor inferior a 0.05 per tant no es compleix la hipòtesis nul·la i per tant les dades no segueixen una distribució normal.
+
+Tant els gràfics com el test de shapiro-wilk, ens indiquen que les dades no segueixen una distribució normal. Però sabem pel que diu el teorema del límit central, que si tenim més de 30 distribucions, es pot aproximar a una distribució normal de mitja 0 i desviació estàndard 1.
+
+La neteja de dades realitzada sobre l'atribut edat, ha influït de manera significativa en la distribució de les dades. Tal com es pot veure en els gràfics.
+
+<H3>4.3. Aplicació de proves estadístiques per comparar els grups de dades. En funció de les dades i de l’objectiu de l’estudi, aplicar proves de contrast d’hipòtesis,
+correlacions, regressions, etc. Aplicar almenys tres mètodes d’anàlisi diferents. </H3>
+
+
+
+
+
+
+
 
