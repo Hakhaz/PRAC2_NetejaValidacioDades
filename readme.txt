@@ -31,6 +31,7 @@ Afegeixo lo que m'ha donat temps a mirar-me avui.
 Al punt 3 afegeixo codi per a comprobar els tipus de dades.
 Al punt 3.1. afegeixo codi per a que es vegi clarament els valors NA i buits. Substitueixo la forma d'emplenar els valors NA d'Age (k-Nearest Neighbors).
 A més a més, modifico la manera d'emplenar el valor NA de "Fare".
+A mi no m'ha donat error a l'hora de convertir l'atribut survived a "raw". De totes maneres, he pensat que potser es millor convertir l'atribut a "logical".
 
 He anat fent probes també per a crear histogrames i gràfics de densitat de diferents variables, per a mostrar les dades d'una manera més visual. Afegiré el codi demà. Demà continuaré mirant els errors que t'han donat, juntament amb els outliers, i aniré mirant aquests dies la planificació de l'anàlisi i la variància.
 
