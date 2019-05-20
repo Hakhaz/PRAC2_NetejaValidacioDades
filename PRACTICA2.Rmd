@@ -117,6 +117,16 @@ Una altra opció pels valors buits de "Age". Substituir els valors NA segons k-N
 library(VIM)
 data$Age <- kNN(data)$Age
 ```
+Un cop modificat el valor d'Age, volem veure si aquesta modificació ha tingut un gran impacte. Creem un dataframe nou, amb les dades sense modificar, y es comparen les dades modificades amb la mitjana amb les dades originals. Sería correcte aquest mètode??
+
+
+```{r}
+data2<-rbind(data_train, data_test)
+par(mfrow=c(1,2))
+hist(data$Age, freq=F, main="Age: values NA with mean",col='darkgreen', ylim=c(0,0.04))
+hist(data2$Age, freq=F, main="Age: Original Data",col='lightgreen', ylim=c(0,0.04))
+```
+
 
 ```{r}
 
@@ -127,10 +137,10 @@ data$Age[is.na(data$Age)]<-28 #mediana = 28
 
 En el cas de l'atribut cabina (cabin) tenim 1014 registres buits dels 1309 del dataset. A més els valors que tenim estan molt fragmentats. En aquestes circumstancies l'atibut cabina no ens aportarà informació rellevant o fiable, així que l'eliminarem en la part de selecció d'atributs (apartat 4.1).
 
-L'atribut tarifa (fare) conté un valor NA. En aquest cas el modifiquem i li posem la mitjana. Primer de tot he modificat el tipus de dada de Fare a "numeric". Per a no pasarli un valor fixe, modifiquem la forma de assignar la mitjana al valor nul
+L'atribut tarifa (fare) conté un valor NA. En aquest cas el modifiquem i li posem la mitjana. Per a no pasarli un valor fixe, modifiquem la forma de assignar la mitjana al valor nul. Calculo la mitjana de la variable Fare, excloent al càlcul els valors NA.
 
 ```{r}
-data$Fare[is.na(data$Fare)] <- mean(data$Fare)
+data$Fare[is.na(data$Fare)] <- mean(data$Fare, na.rm=TRUE)
 ```
 
 
@@ -209,6 +219,25 @@ La neteja de dades realitzada sobre l'atribut edat, ha influït de manera signif
 
 <H3>4.3. Aplicació de proves estadístiques per comparar els grups de dades. En funció de les dades i de l’objectiu de l’estudi, aplicar proves de contrast d’hipòtesis,
 correlacions, regressions, etc. Aplicar almenys tres mètodes d’anàlisi diferents. </H3>
+
+Es crea un model per a predir si una persona sobreviurà o no
+```{r}
+train<-data[1:891,]
+test<-data[892:1309,]
+
+install.packages("C50",dependencies=TRUE)
+library(C50)
+vars<-c("Pclass","Sex","Age","SibSp","Parch","Fare")
+str(data[c(vars,"Survived")])
+train$Survived<-as.factor(train$Survived)
+tree_mod <-C5.0(x=train[,vars],y=train$Survived)
+summary(tree_mod)
+p1<-predict(tree_mod,test)
+summary(p1)
+table(test$Survived,Predicted=p1)
+plot(tree_mod)
+plot(tree_mod,type="simple")
+```
 
 
 
