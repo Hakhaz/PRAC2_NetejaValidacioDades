@@ -36,3 +36,14 @@ A mi no m'ha donat error a l'hora de convertir l'atribut survived a "raw". De to
 He anat fent probes també per a crear histogrames i gràfics de densitat de diferents variables, per a mostrar les dades d'una manera més visual. Afegiré el codi demà. Demà continuaré mirant els errors que t'han donat, juntament amb els outliers, i aniré mirant aquests dies la planificació de l'anàlisi i la variància.
 
 Anem parlant.
+
+20-05-2019 Carlos
+A l'hora de modificar els valors nuls del camp "Age", per saber si afecta a la densitat de les dades, creo un dataFrame per a tenir les dades sense modificar, y poder comparar la distribució abans i després de modificar els valors nuls d'Age.
+Per als valors nuls de la variable "Fare", modifico el codi per a que calculi correctament la mitjana, excloent els valros nuls.
+
+Afegeixo un possible model per a predir si una persona sobreviurà o no. Per a generar aquest arbre de predicció he hagut de modificar el camp "Survived" de logical a factor, ja que el output ha de ser un factor.
+
+Pendent:
+- Els valors "Embarked" que estan buits, sería correcte assignar "S" a aquests valors? O lo millor sería descartar aquests registres?
+- Outliers: Potser tindría sentit tractar únicament els outliers del camp "Age"
+- No entenc el teu error de "Espai buit al finalitzar els gràfics". No me trobat amb cap error jo.
