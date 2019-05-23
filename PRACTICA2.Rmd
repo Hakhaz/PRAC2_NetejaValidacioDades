@@ -203,6 +203,8 @@ Com ja hem comentat anteriorment, tenim atributs que no aporten cap informació 
 data<-data[ , -which(names(data) %in% c("PassengerId","Name","Cabin"))]
 ```
 
+Es vol comparar quins pesos tenen els diferents atributs sobre la supervivenvia o no d'un individu, quins són els factors que més influeixen.
+
 <H3>4.2. Comprovació de la normalitat i homogeneïtat de la variància.</H3>
 
 Per comprobar la normailitat de les dades fem servir un anàlisi visual (qqplot i histograma) i el test shapiro-wilk.
