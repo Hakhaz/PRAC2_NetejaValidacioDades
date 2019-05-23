@@ -113,8 +113,13 @@ L'atribut Age té 263 casos amb valor NA, i l'atribut Embarked 2 casos de valor 
 
 Una altra opció pels valors buits de "Age". Substituir els valors NA segons k-Nearest Neighbors (kNN)
 
-```{r}
+```{r include=FALSE}
 library(VIM)
+```
+
+
+```{r}
+
 data$Age <- kNN(data)$Age
 ```
 Un cop modificat el valor d'Age, volem veure si aquesta modificació ha tingut un gran impacte. Creem un dataframe nou, amb les dades sense modificar, y es comparen les dades modificades amb la mitjana amb les dades originals. Sería correcte aquest mètode??
@@ -145,7 +150,7 @@ data$Fare[is.na(data$Fare)] <- mean(data$Fare, na.rm=TRUE)
 
 
 
-3.2. Identificació i tractament de valors extrems.
+<H3>3.2. Identificació i tractament de valors extrems.</H3>
 
 Busquem valors extrems en els atributs númerics. Comencem amb un mètode molt visualt, el blotpox.
 
@@ -171,9 +176,23 @@ boxplot.stats(data$Parch)$out
 boxplot.stats(data$Fare)$out
 ```
 
+Els valors dels outliers mostrar pel boxplot de l'atribut edat són valors coherents, no els considerem outliers, ja que es mostren forà del gràfic per la concentració de valors entre els 20 i 30 anys.
 
-FALTA REVISAR ELS OUTLIER!! Els camps edat, SibSp i Parch semblen valors correctes que surten fora del boxplot perquè tenim molts valors iguals.
-EL cas de Fare s'ha de mirar millor.
+El mateix es pot dir pels atributs SibSp i Parch, la majoria de regsitres tenen valor 0, i fa que el boxplot estigui molt comprimit en aquest interval. Tenir 8 fills és un valor elevat, pero no es pot considerar irreal.
+
+En el cas de l'atribut Fare revisarem amb més detall els seus valors depenent de l'atribut Pclass, que clarament està relacionat.
+
+```{r}
+par(mfrow=c(2,2))
+boxplot(data$Fare[data$Pclass==1], main = "Fare - Pclass=1", width=100) 
+boxplot(data$Fare[data$Pclass==2], main = "Fare - Pclass=2", width=100) 
+boxplot(data$Fare[data$Pclass==3], main = "Fare - Pclass=3", width=100) 
+
+summary(data$Fare[data$Pclass==1])
+summary(data$Fare[data$Pclass==2])
+summary(data$Fare[data$Pclass==3])
+```
+
 
 <H3>4. Anàlisi de les dades.</H3>
 <H3>4.1. Selecció dels grups de dades que es volen analitzar/comparar (planificació dels anàlisis a aplicar).</H3>
@@ -225,7 +244,7 @@ Es crea un model per a predir si una persona sobreviurà o no
 train<-data[1:891,]
 test<-data[892:1309,]
 
-install.packages("C50",dependencies=TRUE)
+#install.packages("C50",dependencies=TRUE)
 library(C50)
 vars<-c("Pclass","Sex","Age","SibSp","Parch","Fare")
 str(data[c(vars,"Survived")])
@@ -241,8 +260,36 @@ plot(tree_mod,type="simple")
 
 
 
+```{r}
+train<-data[1:891,]
+test<-data[892:1309,]
+modelA<-lm(train$Survived ~ train$Sex + train$Age)
+modelB<-lm(train$Survived ~ train$Sex + train$Age + train$Pclass)
+modelC<-lm(train$Survived ~ train$Sex + train$Age + train$Pclass + train$SibSp)
+modelD<-lm(train$Survived ~ train$Sex + train$Age + train$Pclass + train$SibSp + train$Embarked)
+modelE<-lm(train$Survived ~ train$Sex + train$Age + train$Pclass + train$SibSp + train$Embarked + train$Fare)
+modelF<-lm(train$Survived ~ train$Sex + train$Age + train$Pclass + train$SibSp + train$Embarked + train$Fare + train$Parch)
+
+taulaReg<-matrix(c('A',summary(modelA)$r.squared,
+                    'B',summary(modelB)$r.squared,
+                    'C',summary(modelC)$r.squared,
+                    'D',summary(modelD)$r.squared,
+                    'E',summary(modelE)$r.squared,
+                    'F',summary(modelF)$r.squared), ncol=2, byrow = TRUE)
+
+colnames(taulaReg)<-c("Model","R^2")
+taulaReg
+
+```
 
 
+```{r}
+summary(modelF)
+
+prediccio<-predict(modelF, test, type="response")
+#prediccio
+#table(test$Survived,prediccio>0.5)
+```
 
 
 
