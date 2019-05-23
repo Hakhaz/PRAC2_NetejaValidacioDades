@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-data_train<- read.csv('C:/Users/vodsk/Desktop/UOC/Topologia i cicle de vida de les dades/PRACTICA2/kaggle-titanic-master/input/train.csv',header=T,sep=",", encoding = "UTF-8")
+data_train<- read.csv('D:/Google Drive/Master Data Science/2018-19_2/Tipologia i cicle de vida de les dades/PRAC2. Neteja i validació de dades/titanic/train.csv',header=T,sep=",", encoding = "UTF-8")
 str(data_train)
 summary(data_train)
 ```
@@ -44,8 +44,8 @@ La pregunta que volem respondre, és quins són els factors més determinants qu
 Per començar unificarem els tres datasets en un per fer la neteja de les dades. Després en cas necessari ja se separaran de nou en conjunts de prova i d'entrenament.
 
 ```{r}
-data_test<- read.csv('C:/Users/vodsk/Desktop/UOC/Topologia i cicle de vida de les dades/PRACTICA2/kaggle-titanic-master/input/test.csv',header=T,sep=",", encoding = "UTF-8")
-data_sub<-read.csv('C:/Users/vodsk/Desktop/UOC/Topologia i cicle de vida de les dades/PRACTICA2/kaggle-titanic-master/input/gender_submission.csv',header=T,sep=",", encoding = "UTF-8")
+data_test<- read.csv('D:/Google Drive/Master Data Science/2018-19_2/Tipologia i cicle de vida de les dades/PRAC2. Neteja i validació de dades/titanic/test.csv',header=T,sep=",", encoding = "UTF-8")
+data_sub<-read.csv('D:/Google Drive/Master Data Science/2018-19_2/Tipologia i cicle de vida de les dades/PRAC2. Neteja i validació de dades/titanic/gender_submission.csv',header=T,sep=",", encoding = "UTF-8")
 
 #unifiquem el dataset de test amb els seus resultats
 data_test <- merge(data_test,data_sub, by="PassengerId")
@@ -67,19 +67,11 @@ Al fer una revisió del tipus de dades, veiem que l'atribut Pclass és de tipus 
 En el cas de l'atribut Survived també és de tipus enter quan hauria de ser binari. L'atribut survived es podría convertir a un atribut de tipus lògic (true/false)
 
 Tipus de dades abans de la conversió
-PassengerId    Survived      Pclass        Name         Sex         Age       SibSp       Parch      Ticket 
-  "integer"   "integer"   "integer"    "factor"    "factor"   "numeric"   "integer"   "integer"    "factor" 
-       Fare       Cabin    Embarked 
-"character"    "factor"    "factor" 
-
-Tipus de dades desprès de la conversió
-PassengerId    Survived      Pclass        Name         Sex         Age       SibSp       Parch      Ticket 
-  "integer"       "raw"    "factor"    "factor"    "factor"   "numeric"   "integer"   "integer"    "factor" 
-       Fare       Cabin    Embarked 
-"character"    "factor"    "factor" 
-
 ```{r}
 sapply(data,class)
+```
+Tipus de dades desprès de la converrsió
+```{r}
 data$Pclass<-as.factor(data$Pclass)
 #data$Survived<-as.raw(data$Survived)
 data$Survived<-as.logical(data$Survived)
@@ -90,54 +82,35 @@ sapply(data,class)
 <H3>3.1. Les dades contenen zeros o elements buits? Com gestionaries aquests casos?</H3>
 
 Busquem en tots els atributs els valors NA i buits.
-
+          
 Valors NA
-PassengerId    Survived      Pclass        Name         Sex         Age       SibSp       Parch      Ticket 
-          0           0           0           0           0         263           0           0           0 
-       Fare       Cabin    Embarked 
-          1           0           0 
-          
-Valors buits
-PassengerId    Survived      Pclass        Name         Sex         Age       SibSp       Parch      Ticket 
-          0           0           0           0           0           0           0           0           0 
-       Fare       Cabin    Embarked 
-          0        1014           2 
-          
-
 ```{r}
 sapply(data, function(x) sum(is.na(x)))
+```
+
+Valors buits
+```{r}
 sapply(data, function(x) sum(x==""))
 ```
 
-L'atribut Age té 263 casos amb valor NA, i l'atribut Embarked 2 casos de valor buit. En cada cas utilitzarem una tècnica diferent, per l'atribut age, substituirem els valors NA's per la mediana (molt similar a la mitjana), i en el cas de l'atribut embarked els modificarem per l'atribut majoritari.
-
-Una altra opció pels valors buits de "Age". Substituir els valors NA segons k-Nearest Neighbors (kNN)
+L'atribut Age té 263 casos amb valor NA, i l'atribut Embarked 2 casos de valor buit. En cada cas utilitzarem una tècnica diferent, per l'atribut age, substituirem els valors NA segons k-Nearest Neighbors (kNN), i en el cas de l'atribut embarked els modificarem per l'atribut majoritari.
 
 ```{r include=FALSE}
 library(VIM)
 ```
 
-
 ```{r}
-
 data$Age <- kNN(data)$Age
+data$Embarked[data$Embarked==""]<- "S"
+#data$Age[is.na(data$Age)]<-28 #mediana = 28
 ```
-Un cop modificat el valor d'Age, volem veure si aquesta modificació ha tingut un gran impacte. Creem un dataframe nou, amb les dades sense modificar, y es comparen les dades modificades amb la mitjana amb les dades originals. Sería correcte aquest mètode??
-
+Un cop modificat el valor d'Age, volem veure si aquesta modificació ha tingut un gran impacte. Creem un dataframe nou, amb les dades sense modificar, y es comparen les dades modificades amb la mitjana amb les dades originals.
 
 ```{r}
 data2<-rbind(data_train, data_test)
 par(mfrow=c(1,2))
 hist(data$Age, freq=F, main="Age: values NA with mean",col='darkgreen', ylim=c(0,0.04))
 hist(data2$Age, freq=F, main="Age: Original Data",col='lightgreen', ylim=c(0,0.04))
-```
-
-
-```{r}
-
-data$Embarked[data$Embarked==""]<- "S"
-data$Age[is.na(data$Age)]<-28 #mediana = 28
-
 ```
 
 En el cas de l'atribut cabina (cabin) tenim 1014 registres buits dels 1309 del dataset. A més els valors que tenim estan molt fragmentats. En aquestes circumstancies l'atibut cabina no ens aportarà informació rellevant o fiable, així que l'eliminarem en la part de selecció d'atributs (apartat 4.1).
@@ -293,5 +266,24 @@ prediccio<-predict(modelF, test, type="response")
 #table(test$Survived,prediccio>0.5)
 ```
 
+Afegeixo un model de predicció, basat en NaiveBayes. Elimino les columnes que no tindrien impacte en la predicció.Eliminant les columnes Parch, Ticket, Fare i embarked, s'obté un model molt acurat.
 
+```{r}
+library(e1071)
+library(caret)
+dataNaiveBayes <- data
 
+dataNaiveBayes <- within(dataNaiveBayes,{
+      Parch <- NULL
+      Ticket <- NULL
+      Fare <- NULL
+      Embarked <- NULL
+  })
+trainNaiveBayes<-dataNaiveBayes[1:891,]
+testNaiveBayes<-dataNaiveBayes[892:1309,]
+model <- naiveBayes(Survived ~ ., data = trainNaiveBayes)
+model
+pred <- predict(model,testNaiveBayes)
+tab <- table(testNaiveBayes$Survived, pred, dnn=c("Actual", "Predita"))
+confusionMatrix(tab)
+```
