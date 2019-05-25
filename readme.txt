@@ -58,3 +58,8 @@ Pendent:
 - He creat un nou model de predicció (NaiveBayes) que tal y com está ara es bastant acurat.
 - He probat a imprimir en PDF, però hem dona error. Només he pogut en html. Tú pots en PDF??
 - Demà continuaré mirant-me la resta de punts.
+
+25/05/2019 Oscar
+
+- La generació del PDF també hem falla. (crec que es algun problema amb el mikitext)
+- Acabada la predicció amb el model de regressió.
