@@ -3,9 +3,9 @@ title: 'Pràctica 2: Neteja i validació de les dades'
 author: "Carlos Pérez Martín i Oscar Fernandez Castro"
 date: "18 de mayo de 2019"
 output:
+  html_document: default
   word_document: default
   pdf_document: default
-  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -76,7 +76,6 @@ sapply(data,class)
 Tipus de dades desprès de la conversió
 ```{r}
 data$Pclass<-as.factor(data$Pclass)
-#data$Survived<-as.raw(data$Survived)
 data$Survived<-as.logical(data$Survived)
 sapply(data,class)
 ```
@@ -215,6 +214,10 @@ Tant els gràfics com el test de shapiro-wilk, ens indiquen que les dades no seg
 
 La neteja de dades realitzada sobre l'atribut edat, ha influït de manera significativa en la distribució de les dades. Tal com es pot veure en els gràfics.
 
+```{r setup2, include=FALSE}
+write.csv(data,'D:/Google Drive/Master Data Science/2018-19_2/Tipologia i cicle de vida de les dades/PRAC2. Neteja i validació de dades/titanic/dataOut.csv',row.names=FALSE)
+```
+
 <H3>4.3. Aplicació de proves estadístiques per comparar els grups de dades. En funció de les dades i de l’objectiu de l’estudi, aplicar proves de contrast d’hipòtesis,
 correlacions, regressions, etc. Aplicar almenys tres mètodes d’anàlisi diferents. </H3>
 
@@ -332,10 +335,30 @@ confusionMatrix(tab)
 
 Un cop probat el model amb el conjunt de test, es pot observar que aquest es més acurat que el model d'arbre de classificació anterior a l'hora de predir si un passatger sobreviu o no.
 
-<H3>5. Resolució del problema.A partir dels resultats obtinguts, quines són les conclusions? Els resultats permeten respondre al problema?</H3>
+<H3>5. Representació dels resultats a partir de taules i gràfiques.</H3>
+Durant la resolució dels diferents apartats es van generant les taules i gràfiques necessàries per a la presentació dels resultats obtinguts.
+
+<H3>6. Resolució del problema.A partir dels resultats obtinguts, quines són les conclusions? Els resultats permeten respondre al problema?</H3>
 
 Un cop realitzat tot l'anàlisi, es pot assegurar que les variables necessàries per a predir si un passatger sobreviu o no són: Sex, Age, Pclass i SibSp
  
 Generant un model amb aquestes dades som capaços de predir, amb una exactitud del 96,65%, si un passatger sobreviu o no, utilitzant únicament les dades esmentades.
 
 Per tant, com a conclusió, podem dir que s'ha aconseguit respondre a les preguntes inicials, que era estudiar quines variables tenen més impacte en la taxa de supervivència dels passatgers i, mitjançant aquestes, generar un model adequat per a predir qualsevol altre cas possible.
+
+<H3>7. Codi</H3>
+Es pot trobar el codi a la carpeta Code del github (https://github.com/Hakhaz/NetejaValidacioDades)
+
+
+<table class="egt">
+
+  <tr>
+
+    CONTRIBUCIONS                 SIGNATURA
+    Investigació prèvia           CPM, OFC
+    Redacció de les respostes     CPM, OFC
+    Desenvolupament codi          CPM, OFC
+
+  </tr>
+
+</table>
