@@ -74,4 +74,6 @@ Executant aquestes 4 instruccions hauríes de poder guardar correctament com a P
 
 He modificat el codi per a generar tot correctament i fer-ho presentable. M'ho aniré revisant per veure que no m'he saltat res. Qualsevol cosa que vegis malament m'ho dius i ho modifico. He ordenat tot el gitHub en carpetes.
 
+Abans del punt 4.3. Anàlisi de proves estadístiques, he afegit un codi que no es mostra al document, per exportar les dades modificades a un arxiu csv.
+
 He fet el repositori public.
