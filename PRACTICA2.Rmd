@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-data_train<- read.csv('D:/Google Drive/Master Data Science/2018-19_2/Tipologia i cicle de vida de les dades/PRAC2. Neteja i validació de dades/titanic/train.csv',header=T,sep=",", encoding = "UTF-8")
+data_train<- read.csv('C:/Users/vodsk/Desktop/UOC/Topologia i cicle de vida de les dades/PRACTICA2/kaggle-titanic-master/input/train.csv',header=T,sep=",", encoding = "UTF-8")
 str(data_train)
 summary(data_train)
 ```
@@ -44,8 +44,8 @@ La pregunta que volem respondre, és quins són els factors més determinants qu
 Per començar unificarem els tres datasets en un per fer la neteja de les dades. Després en cas necessari ja se separaran de nou en conjunts de prova i d'entrenament.
 
 ```{r}
-data_test<- read.csv('D:/Google Drive/Master Data Science/2018-19_2/Tipologia i cicle de vida de les dades/PRAC2. Neteja i validació de dades/titanic/test.csv',header=T,sep=",", encoding = "UTF-8")
-data_sub<-read.csv('D:/Google Drive/Master Data Science/2018-19_2/Tipologia i cicle de vida de les dades/PRAC2. Neteja i validació de dades/titanic/gender_submission.csv',header=T,sep=",", encoding = "UTF-8")
+data_test<- read.csv('C:/Users/vodsk/Desktop/UOC/Topologia i cicle de vida de les dades/PRACTICA2/kaggle-titanic-master/input/test.csv',header=T,sep=",", encoding = "UTF-8")
+data_sub<-read.csv('C:/Users/vodsk/Desktop/UOC/Topologia i cicle de vida de les dades/PRACTICA2/kaggle-titanic-master/input/gender_submission.csv',header=T,sep=",", encoding = "UTF-8")
 
 #unifiquem el dataset de test amb els seus resultats
 data_test <- merge(data_test,data_sub, by="PassengerId")
@@ -234,16 +234,18 @@ plot(tree_mod,type="simple")
 ```
 
 
+Ara utilitzarem mètodes de regressió múltiple per esbrinar quins són els atributs que tenen un pes més significatiu en la supervivencia d'una persona.
+
 
 ```{r}
-train<-data[1:891,]
-test<-data[892:1309,]
-modelA<-lm(train$Survived ~ train$Sex + train$Age)
-modelB<-lm(train$Survived ~ train$Sex + train$Age + train$Pclass)
-modelC<-lm(train$Survived ~ train$Sex + train$Age + train$Pclass + train$SibSp)
-modelD<-lm(train$Survived ~ train$Sex + train$Age + train$Pclass + train$SibSp + train$Embarked)
-modelE<-lm(train$Survived ~ train$Sex + train$Age + train$Pclass + train$SibSp + train$Embarked + train$Fare)
-modelF<-lm(train$Survived ~ train$Sex + train$Age + train$Pclass + train$SibSp + train$Embarked + train$Fare + train$Parch)
+#train<-data[1:891,]
+#test<-data[892:1309,]
+modelA<-lm(data$Survived ~ data$Sex + data$Age)
+modelB<-lm(data$Survived ~ data$Sex + data$Age + data$Pclass)
+modelC<-lm(data$Survived ~ data$Sex + data$Age + data$Pclass + data$SibSp)
+modelD<-lm(data$Survived ~ data$Sex + data$Age + data$Pclass + data$SibSp + data$Embarked)
+modelE<-lm(data$Survived ~ data$Sex + data$Age + data$Pclass + data$SibSp + data$Embarked + data$Fare)
+modelF<-lm(data$Survived ~ data$Sex + data$Age + data$Pclass + data$SibSp + data$Embarked + data$Fare + data$Parch)
 
 taulaReg<-matrix(c('A',summary(modelA)$r.squared,
                     'B',summary(modelB)$r.squared,
@@ -257,20 +259,39 @@ taulaReg
 
 ```
 
+Els resultats obtinguts no són especialment bons, el millor dels models el F, només explica el 52% dels casos totals, pero la diferencia del model f amb el C és infima, donat que els nous atributs introduits no són significatius. De totes maneres ens es útil per veure com influeixen els atributs en la supervivencia.
 
 ```{r}
 summary(modelF)
 
-prediccio<-predict(modelF, test, type="response")
-#prediccio
-#table(test$Survived,prediccio>0.5)
 ```
+
+Podem veure com els atributs més significatius són el sex, age, Pclass i SibSp. El mòdel ens indica que si el sexe = home les probabilitats de supervivencia cauen de manera significativa, al igual que si esten en segona classe o especialment en la tercera.
+
+En canvi els atributs Embarked, Fare i Parch són poc significatius a l'hora d'explicar la supervivencia.
+
+```{r}
+pred<-predict(modelF)
+
+table(data$Survived,pred>0.5)
+
+```
+
+Depenent del umbral de tall obtindrem més falsos positius o falsos negatius, de totes maneres amb el model obtingut, el nivell d'errors él bastant alt.
+
+
 
 Afegeixo un model de predicció, basat en NaiveBayes. Elimino les columnes que no tindrien impacte en la predicció.Eliminant les columnes Parch, Ticket, Fare i embarked, s'obté un model molt acurat.
 
-```{r}
+```{r include=FALSE}
 library(e1071)
 library(caret)
+```
+
+
+
+```{r}
+
 dataNaiveBayes <- data
 
 dataNaiveBayes <- within(dataNaiveBayes,{
