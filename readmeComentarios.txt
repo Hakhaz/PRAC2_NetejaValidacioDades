@@ -73,3 +73,5 @@ He aconseguit imprimir com a pdf. Adjunto els passos a executar.
 Executant aquestes 4 instruccions hauríes de poder guardar correctament com a PDF.
 
 He modificat el codi per a generar tot correctament i fer-ho presentable. M'ho aniré revisant per veure que no m'he saltat res. Qualsevol cosa que vegis malament m'ho dius i ho modifico. He ordenat tot el gitHub en carpetes.
+
+He fet el repositori public.
