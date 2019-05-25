@@ -2,11 +2,14 @@
 title: 'Pràctica 2: Neteja i validació de les dades'
 author: "Carlos Pérez Martín i Oscar Fernandez Castro"
 date: "18 de mayo de 2019"
-output: html_document
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
-data_train<- read.csv('C:/Users/vodsk/Desktop/UOC/Topologia i cicle de vida de les dades/PRACTICA2/kaggle-titanic-master/input/train.csv',header=T,sep=",", encoding = "UTF-8")
+data_train<- read.csv('D:/Google Drive/Master Data Science/2018-19_2/Tipologia i cicle de vida de les dades/PRAC2. Neteja i validació de dades/titanic/train.csv',header=T,sep=",", encoding = "UTF-8")
 str(data_train)
 summary(data_train)
 ```
@@ -44,8 +47,8 @@ La pregunta que volem respondre, és quins són els factors més determinants qu
 Per començar unificarem els tres datasets en un per fer la neteja de les dades. Després en cas necessari ja se separaran de nou en conjunts de prova i d'entrenament.
 
 ```{r}
-data_test<- read.csv('C:/Users/vodsk/Desktop/UOC/Topologia i cicle de vida de les dades/PRACTICA2/kaggle-titanic-master/input/test.csv',header=T,sep=",", encoding = "UTF-8")
-data_sub<-read.csv('C:/Users/vodsk/Desktop/UOC/Topologia i cicle de vida de les dades/PRACTICA2/kaggle-titanic-master/input/gender_submission.csv',header=T,sep=",", encoding = "UTF-8")
+data_test<- read.csv('D:/Google Drive/Master Data Science/2018-19_2/Tipologia i cicle de vida de les dades/PRAC2. Neteja i validació de dades/titanic/test.csv',header=T,sep=",", encoding = "UTF-8")
+data_sub<-read.csv('D:/Google Drive/Master Data Science/2018-19_2/Tipologia i cicle de vida de les dades/PRAC2. Neteja i validació de dades/titanic/gender_submission.csv',header=T,sep=",", encoding = "UTF-8")
 
 #unifiquem el dataset de test amb els seus resultats
 data_test <- merge(data_test,data_sub, by="PassengerId")
@@ -70,7 +73,7 @@ Tipus de dades abans de la conversió
 ```{r}
 sapply(data,class)
 ```
-Tipus de dades desprès de la converrsió
+Tipus de dades desprès de la conversió
 ```{r}
 data$Pclass<-as.factor(data$Pclass)
 #data$Survived<-as.raw(data$Survived)
@@ -112,6 +115,7 @@ par(mfrow=c(1,2))
 hist(data$Age, freq=F, main="Age: values NA with mean",col='darkgreen', ylim=c(0,0.04))
 hist(data2$Age, freq=F, main="Age: Original Data",col='lightgreen', ylim=c(0,0.04))
 ```
+Es pot observar que el fet de modificar els valors NA d'Age seguint el mètode de k-Nearest Neighbors no afecta gaire a la distribució dels valors, per tant es pot concluir que es una bona aproximació dels valors.
 
 En el cas de l'atribut cabina (cabin) tenim 1014 registres buits dels 1309 del dataset. A més els valors que tenim estan molt fragmentats. En aquestes circumstancies l'atibut cabina no ens aportarà informació rellevant o fiable, així que l'eliminarem en la part de selecció d'atributs (apartat 4.1).
 
@@ -153,7 +157,7 @@ Els valors dels outliers mostrar pel boxplot de l'atribut edat són valors coher
 
 El mateix es pot dir pels atributs SibSp i Parch, la majoria de regsitres tenen valor 0, i fa que el boxplot estigui molt comprimit en aquest interval. Tenir 8 fills és un valor elevat, pero no es pot considerar irreal.
 
-En el cas de l'atribut Fare revisarem amb més detall els seus valors depenent de l'atribut Pclass, que clarament està relacionat.
+En el cas de l’atribut Fare revisarem a continuació amb més detall els seus valors depenent de l’atribut Pclass, que clarament està relacionat.
 
 ```{r}
 par(mfrow=c(2,2))
@@ -165,7 +169,7 @@ summary(data$Fare[data$Pclass==1])
 summary(data$Fare[data$Pclass==2])
 summary(data$Fare[data$Pclass==3])
 ```
-
+Un cop analitzat la tarifa dels bitllets de les diferents classes, observant els valors mitjans, es pot observar una diferència raonable en els preus dels bitllets entre les diferents classes, sent més alta la tarifa a primera classe i més baixa a tercera. Tot i això, sobretot a tercera classe, s'observen uns preus extrems, que podríem considerar erronis, però degut a que no disposem de més informació, decidirem no tractar amb aquests valors, degut a que podría ser correcta aquesta informació.
 
 <H3>4. Anàlisi de les dades.</H3>
 <H3>4.1. Selecció dels grups de dades que es volen analitzar/comparar (planificació dels anàlisis a aplicar).</H3>
@@ -214,26 +218,36 @@ La neteja de dades realitzada sobre l'atribut edat, ha influït de manera signif
 <H3>4.3. Aplicació de proves estadístiques per comparar els grups de dades. En funció de les dades i de l’objectiu de l’estudi, aplicar proves de contrast d’hipòtesis,
 correlacions, regressions, etc. Aplicar almenys tres mètodes d’anàlisi diferents. </H3>
 
-Es crea un model per a predir si una persona sobreviurà o no
+<H4>Model d'arbre de classificació</H4>
+El primer model creat, per a predir si un passatger sobreviu o no, serà un model d'arbre de classificació. El primer pas es generar el conjunt d'entrenament, amb el qual es crearà el model, i el conjunt de test, amb el qual es comprobarà com de bo es el model.
+
 ```{r}
 train<-data[1:891,]
 test<-data[892:1309,]
 
-#install.packages("C50",dependencies=TRUE)
 library(C50)
 vars<-c("Pclass","Sex","Age","SibSp","Parch","Fare")
 str(data[c(vars,"Survived")])
 train$Survived<-as.factor(train$Survived)
 tree_mod <-C5.0(x=train[,vars],y=train$Survived)
+```
+
+A continuació es mostra el model d'arbre de classificació generat.
+```{r}
 summary(tree_mod)
-p1<-predict(tree_mod,test)
-summary(p1)
-table(test$Survived,Predicted=p1)
 plot(tree_mod)
 plot(tree_mod,type="simple")
 ```
 
+Un cop generat el model, es vol comprobar que el model funciona correctament. Per això, utilitzem el conjunt de test per a comprobar com de bo es el model.
+```{r}
+p1<-predict(tree_mod,test)
+summary(p1)
+table(test$Survived,Predicted=p1)
+```
+Com es pot observar, mitjançant aquest model, dels  passatgers que no van sobreviure, classifica 254 casos com a que no sobreviuen, y 12 que sí, mentre que dels que sí van sobreviure, classifica 146 com a que sobreviuen y nomès 12 que no. Per tant, el model de classificació generat es bastant acurat i permet predir de forma bastant exacta si un passatger va sobreviure o no.
 
+<H4>Model de regressió múltiple</H4>
 Ara utilitzarem mètodes de regressió múltiple per esbrinar quins són els atributs que tenen un pes més significatiu en la supervivencia d'una persona.
 
 
@@ -279,19 +293,18 @@ table(data$Survived,pred>0.5)
 
 Depenent del umbral de tall obtindrem més falsos positius o falsos negatius, de totes maneres amb el model obtingut, el nivell d'errors él bastant alt.
 
+<H4>Model de classificació Bayesià</H4>
 
+Per últim es decideix generar un segon model de classificació, però aquest cop seguint un classificador Bayesià ingenu, mitjançant NaiveBayes. NaiveBayes es un algoritme d'aprenentatge automàtic basat en el teorema de Bayes.
 
-Afegeixo un model de predicció, basat en NaiveBayes. Elimino les columnes que no tindrien impacte en la predicció.Eliminant les columnes Parch, Ticket, Fare i embarked, s'obté un model molt acurat.
+El primer pas es establir quines variables s'utilitzaràn per a generar el model. Desprès de diverses probes, s'ha vist que, el·liminant les variables Parch, Ticket, Fare y Embarked, s'aconsegueix el model més exacte. Per tant, el primer punt es el·liminar aquestes variables. Això permet assegurar que els resultats del model de regressió múltiple anterior son correctes, ja que amb les variables més rellevants que s'indiquen al model anterior, es quan s'aconsegueix el millor model de predicció.
 
 ```{r include=FALSE}
 library(e1071)
 library(caret)
 ```
 
-
-
 ```{r}
-
 dataNaiveBayes <- data
 
 dataNaiveBayes <- within(dataNaiveBayes,{
@@ -302,9 +315,27 @@ dataNaiveBayes <- within(dataNaiveBayes,{
   })
 trainNaiveBayes<-dataNaiveBayes[1:891,]
 testNaiveBayes<-dataNaiveBayes[892:1309,]
+```
+
+El model generat es el següent.
+```{r}
 model <- naiveBayes(Survived ~ ., data = trainNaiveBayes)
 model
+```
+
+Un cop generat el model, es proba el model amb el conjunt de test.
+```{r}
 pred <- predict(model,testNaiveBayes)
 tab <- table(testNaiveBayes$Survived, pred, dnn=c("Actual", "Predita"))
 confusionMatrix(tab)
 ```
+
+Un cop probat el model amb el conjunt de test, es pot observar que aquest es més acurat que el model d'arbre de classificació anterior a l'hora de predir si un passatger sobreviu o no.
+
+<H3>5. Resolució del problema.A partir dels resultats obtinguts, quines són les conclusions? Els resultats permeten respondre al problema?</H3>
+
+Un cop realitzat tot l'anàlisi, es pot assegurar que les variables necessàries per a predir si un passatger sobreviu o no són: Sex, Age, Pclass i SibSp
+ 
+Generant un model amb aquestes dades som capaços de predir, amb una exactitud del 96,65%, si un passatger sobreviu o no, utilitzant únicament les dades esmentades.
+
+Per tant, com a conclusió, podem dir que s'ha aconseguit respondre a les preguntes inicials, que era estudiar quines variables tenen més impacte en la taxa de supervivència dels passatgers i, mitjançant aquestes, generar un model adequat per a predir qualsevol altre cas possible.
