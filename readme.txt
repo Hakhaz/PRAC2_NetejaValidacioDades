@@ -63,3 +63,11 @@ Pendent:
 
 - La generació del PDF també hem falla. (crec que es algun problema amb el mikitext)
 - Acabada la predicció amb el model de regressió.
+
+25/05/2019 Carlos
+He aconseguit imprimir com a pdf. Adjunto els passos a executar.
+  install.packages("tinytex", dependencies=TRUE)
+  install.packages("devtools", dependencies=TRUE)
+  devtools::install_github('yihui/tinytex')
+  set options(tinytex.verbose = TRUE)
+Executant aquestes 4 instruccions hauríes de poder guardar correctament com a PDF.
