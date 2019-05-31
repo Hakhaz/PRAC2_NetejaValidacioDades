@@ -409,7 +409,7 @@ barplot(table(testNaiveBayes$Survived[testNaiveBayes$Age == ">50 and <=65"]), ma
 barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$Age == ">50 and <=65"]), main="Predicted survived >50 and <= 65 years",xlab="Survived",ylab="count")
 ```
 ```{r}
-par(mfrow=c(2,2))
+par(mfrow=c(1,2))
 barplot(table(testNaiveBayes$Survived[testNaiveBayes$Age == ">65"]), main="Original survived >65 years",xlab="Survived",ylab="count")
 barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$Age == ">65"]), main="Predicted survived >65 years",xlab="Survived",ylab="count")
 ```
