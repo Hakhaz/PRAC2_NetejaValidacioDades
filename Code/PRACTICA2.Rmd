@@ -11,7 +11,6 @@ output:
 ```{r setup, include=FALSE}
 data_train<- read.csv('D:/Google Drive/Master Data Science/2018-19_2/Tipologia i cicle de vida de les dades/PRAC2. Neteja i validació de dades/titanic/train.csv',header=T,sep=",", encoding = "UTF-8")
 str(data_train)
-summary(data_train)
 ```
 
 <H3>1. Descripció del dataset. Perquè és important i quina pregunta/problema pretén respondre?</H3>
@@ -41,6 +40,11 @@ Els atributs que tenim en els diferents datasets són:
 - Embarked: Embarcat (C = Cherbourg, Q = Queenstown, S = Southampton)
 
 La pregunta que volem respondre, és quins són els factors més determinants que influeixen en la taxa de supervivència del passatge. Quins atributs tenen un impacte més elevat? (sexe, classe, edat, etc). Per això s'utilitzaran mètodes de regressió per avaluar les relacions entre atributs.
+
+A continuació es mostra un resum de les dades a analitzar.
+```{r}
+summary(data_train)
+```
 
 <H3>2. Integració i selecció de les dades d’interès a analitzar.</H3>
 
