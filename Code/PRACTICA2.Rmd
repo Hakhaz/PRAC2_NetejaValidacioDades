@@ -339,6 +339,82 @@ confusionMatrix(tab)
 
 Un cop probat el model amb el conjunt de test, es pot observar que aquest es més acurat que el model d'arbre de classificació anterior a l'hora de predir si un passatger sobreviu o no.
 
+Finalment es mostren les 4 variables utilitzades, comparant els resultats de les dades originals i les dades predites pel model, per comprobar visualment la qualitat del model.
+
+```{r}
+testNaiveBayes$Prediccion <- pred
+par(mfrow=c(2,2))
+barplot(table(testNaiveBayes$Survived[testNaiveBayes$Sex == "male"]), main="Original survived male",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$Sex == "male"]), main="Predicted survived male",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Survived[testNaiveBayes$Sex == "female"]), main="Original survived female",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$Sex == "female"]), main="Predicted survived female",xlab="Survived",ylab="count")
+```
+```{r}
+par(mfrow=c(3,2))
+barplot(table(testNaiveBayes$Survived[testNaiveBayes$Pclass == "1"]), main="Original survived class 1",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$Pclass == "1"]), main="Predicted survived class 1",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Survived[testNaiveBayes$Pclass == "2"]), main="Original survived class 2",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$Pclass == "2"]), main="Predicted survived class 2",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Survived[testNaiveBayes$Pclass == "3"]), main="Original survived class 3",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$Pclass == "3"]), main="Predicted survived class 3",xlab="Survived",ylab="count")
+```
+
+```{r}
+par(mfrow=c(2,2))
+barplot(table(testNaiveBayes$Survived[testNaiveBayes$SibSp == "0"]), main="Original survived family members 0",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$SibSp == "0"]), main="Predicted survived family members 0",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Survived[testNaiveBayes$SibSp == "1"]), main="Original survived family members 1",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$SibSp == "1"]), main="Predicted survived family members 1",xlab="Survived",ylab="count")
+```
+```{r}
+par(mfrow=c(2,2))
+barplot(table(testNaiveBayes$Survived[testNaiveBayes$SibSp == "2"]), main="Original survived family members 2",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$SibSp == "2"]), main="Predicted survived family members 2",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Survived[testNaiveBayes$SibSp == "3"]), main="Original survived family members 3",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$SibSp == "3"]), main="Predicted survived family members 3",xlab="Survived",ylab="count")
+```
+```{r}
+par(mfrow=c(2,2))
+barplot(table(testNaiveBayes$Survived[testNaiveBayes$SibSp == "4"]), main="Original survived family members 4",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$SibSp == "4"]), main="Predicted survived family members 4",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Survived[testNaiveBayes$SibSp == "5"]), main="Original survived family members 5",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$SibSp == "5"]), main="Predicted survived family members 5",xlab="Survived",ylab="count")
+```
+
+```{r}
+par(mfrow=c(1,2))
+barplot(table(testNaiveBayes$Survived[testNaiveBayes$SibSp == "8"]), main="Original survived family members 8",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$SibSp == "8"]), main="Original survived family members 8",xlab="Survived",ylab="count")
+```
+
+```{r}
+testNaiveBayes$Age[testNaiveBayes$Age<"19"]<- "<=18"
+testNaiveBayes$Age[testNaiveBayes$Age>"65"]<- ">65"
+testNaiveBayes$Age[(testNaiveBayes$Age>"18")&(testNaiveBayes$Age<"31")]<- ">18 and <=30"
+testNaiveBayes$Age[(testNaiveBayes$Age>"30")&(testNaiveBayes$Age<"51")]<- ">30 and <=50"
+testNaiveBayes$Age[(testNaiveBayes$Age>"50")&(testNaiveBayes$Age<"66")]<- ">50 and <=65"
+```
+```{r}
+par(mfrow=c(2,2))
+barplot(table(testNaiveBayes$Survived[testNaiveBayes$Age == "<=18"]), main="Original survived <=18 years",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$Age == "<=18"]), main="Predicted survived <= 18 years",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Survived[testNaiveBayes$Age == ">18 and <=30"]), main="Original survived >18 and <= 30 years",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$Age == ">18 and <=30"]), main="Predicted survived >18 and <= 30 years",xlab="Survived",ylab="count")
+```
+```{r}
+par(mfrow=c(2,2))
+barplot(table(testNaiveBayes$Survived[testNaiveBayes$Age == ">30 and <=50"]), main="Original survived >30 and <= 50 years",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$Age == ">30 and <=50"]), main="Predicted survived >30 and <= 50 years",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Survived[testNaiveBayes$Age == ">50 and <=65"]), main="Original survived >50 and <= 65 years",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$Age == ">50 and <=65"]), main="Predicted survived >50 and <= 65 years",xlab="Survived",ylab="count")
+```
+```{r}
+par(mfrow=c(2,2))
+barplot(table(testNaiveBayes$Survived[testNaiveBayes$Age == ">65"]), main="Original survived >65 years",xlab="Survived",ylab="count")
+barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$Age == ">65"]), main="Predicted survived >65 years",xlab="Survived",ylab="count")
+```
+
+
 <H3>5. Representació dels resultats a partir de taules i gràfiques.</H3>
 Durant la resolució dels diferents apartats es van generant les taules i gràfiques necessàries per a la presentació dels resultats obtinguts.
 
