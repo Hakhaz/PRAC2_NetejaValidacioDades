@@ -158,7 +158,7 @@ boxplot.stats(data$Fare)$out
 
 Els valors dels outliers mostrar pel boxplot de l'atribut edat són valors coherents, no els considerem outliers, ja que es mostren forà del gràfic per la concentració de valors entre els 20 i 30 anys.
 
-El mateix es pot dir pels atributs SibSp i Parch, la majoria de regsitres tenen valor 0, i fa que el boxplot estigui molt comprimit en aquest interval. Tenir 8 fills és un valor elevat, pero no es pot considerar irreal.
+El mateix es pot dir pels atributs SibSp i Parch, la majoria de regsitres tenen valor 0, i fa que el boxplot estigui molt comprimit en aquest interval. Tenir 8 fills és un valor elevat, pero no es pot considerar irreal. Per tant, observant els valors de les variables, no es troba necessari realitzar cap altre anàlisi de valors extrems ja que, pels valors que es donen, no es pot considerar cap un valor extrem.
 
 En el cas de l’atribut Fare revisarem a continuació amb més detall els seus valors depenent de l’atribut Pclass, que clarament està relacionat.
 
@@ -187,7 +187,7 @@ Es vol comparar quins pesos tenen els diferents atributs sobre la supervivenvia 
 
 <H3>4.2. Comprovació de la normalitat i homogeneïtat de la variància.</H3>
 
-Per comprobar la normailitat de les dades fem servir un anàlisi visual (qqplot i histograma) i el test shapiro-wilk.
+Per comprobar la normalitat de les dades fem servir un anàlisi visual (qqplot i histograma) i el test shapiro-wilk.
 
 ```{r}
 
@@ -414,15 +414,110 @@ barplot(table(testNaiveBayes$Survived[testNaiveBayes$Age == ">65"]), main="Origi
 barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$Age == ">65"]), main="Predicted survived >65 years",xlab="Survived",ylab="count")
 ```
 
+<H4>Validació creuada</H4>
+
+Un cop realitzat l'anàlisi de NaiveBayes, es pot pensar que el conjunt d'entrenament i test no era el més adequat per a realitzar el model. Per tant, es realitzarà un anàlisi de validació creuada per a obtenir un model més acurat a totes les dades existents. Un cop realitzada la validació creuada amb el mètode de NaiveBayes, s'obtenen els següents resultats, obtenint un model amb una predicció del 85.86%.
+
+```{r include=FALSE}
+library(caret)
+library(groupdata2)
+library(dplyr)
+```
+```{r}
+set.seed(1989)
+folds <- 10
+dataNaiveBayes <- data
+dataNaiveBayes$kfold <- sample(1:folds, nrow(dataNaiveBayes),replace=T)
+Iter <- data.frame(iteracion=NULL,aciertos=NULL)
+for (i in 1:folds)
+{
+  testFold <- subset(dataNaiveBayes, kfold==i)
+  trainingFold <- subset(dataNaiveBayes, !kfold == i)
+  mod <- naiveBayes(Survived ~ ., data = trainingFold)
+  pre <- predict(mod, newdata = testFold)
+  cm <- table(testFold$Survived, pre)
+  precision <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] +cm[1,2] + cm[2,1])
+  Iter <- rbind(Iter,data.frame(Iter=i,acierto=precision))
+}
+
+prom <- format(mean(Iter$acierto, na.rm=TRUE)*100,digits=4)
+plot(Iter, type = "b", main="% Predicció en cada iteració model NaiveBayes",cex.axis=.7,
+     cex.lab=.7, cex.main=.8,xlab="Nombre d'Iteracions",ylab="% Predicció")
+abline(h=mean(Iter$acierto),col="blue",lty=2)
+legend("topright",legend=paste("Eficiència de predicció=",prom,"%"),
+       col="blue",lty=2,lwd=1,cex=.7, bg=NULL)
+```
+
+Un altre mètode per a realitzar la validació creuada pel mètode NaiveBayes, que dona un valor igual es:
+
+```{r include=FALSE}
+library(caret)
+```
+```{r}
+set.seed(1989)
+folds <- createFolds(dataNaiveBayes$Survived, k = 10)
+cvNaiveBayes <- lapply(folds, function(x){
+  training_fold <- dataNaiveBayes[-x, ]
+  test_fold <- dataNaiveBayes[x, ]
+  mod <- naiveBayes(Survived ~ ., data = training_fold)
+  pre <- predict(mod, newdata = test_fold)
+  cm <- table(test_fold$Survived, pre)
+  precision <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] +cm[1,2] + cm[2,1])
+  return(precision)
+})
+precisionNaiveBayes <- mean(as.numeric(cvNaiveBayes))
+precisionNaiveBayes
+```
+
+Un cop realitzada la validació creuada pel model NaiveBayes, es realitza pel model d'arbre de classificació C50.
+El resultat obtingut es el següent:
+
+```{r include=FALSE}
+library(caret)
+library(groupdata2)
+library(dplyr)
+library(C50)
+```
+```{r}
+set.seed(1989)
+folds <- 10
+dataC50 <- data
+dataC50$kfold <- sample(1:folds, nrow(dataC50),replace=T)
+vars<-c("Pclass","Sex","Age","SibSp","Parch","Fare")
+str(dataC50[c(vars,"Survived")])
+dataC50$Survived<-as.factor(dataC50$Survived)
+Iter <- data.frame(iteracion=NULL,aciertos=NULL)
+for (i in 1:folds)
+{
+  testFold <- subset(dataC50, kfold==i)
+  trainingFold <- subset(dataC50, !kfold == i)
+  mod <- C5.0(x=train[,vars],y=train$Survived)
+  pre <- predict(mod, newdata = testFold)
+  cm <- table(testFold$Survived, pre)
+  precision <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] +cm[1,2] + cm[2,1])
+  Iter <- rbind(Iter,data.frame(Iter=i,acierto=precision))
+}
+
+prom <- format(mean(Iter$acierto, na.rm=TRUE)*100,digits=4)
+plot(Iter, type = "b", main="% Predicció en cada iteració model C50",cex.axis=.7,
+     cex.lab=.7, cex.main=.8,xlab="Nombre d'Iteracions",ylab="% Predicció")
+abline(h=mean(Iter$acierto),col="blue",lty=2)
+legend("topright",legend=paste("Eficiència de predicció=",prom,"%"),
+       col="blue",lty=2,lwd=1,cex=.7, bg=NULL)
+```
+
+
+Com es pot observar, l'eficiència del model d'arbre de classificació es major que la del classificador bayesià. Per tant, concluïm que, per al nostre conjunt de dades, el model més òptim es el model d'arbre de classificació.
+
 
 <H3>5. Representació dels resultats a partir de taules i gràfiques.</H3>
 Durant la resolució dels diferents apartats es van generant les taules i gràfiques necessàries per a la presentació dels resultats obtinguts.
 
 <H3>6. Resolució del problema.A partir dels resultats obtinguts, quines són les conclusions? Els resultats permeten respondre al problema?</H3>
 
-Un cop realitzat tot l'anàlisi, es pot assegurar que les variables necessàries per a predir si un passatger sobreviu o no són: Sex, Age, Pclass i SibSp
+Un cop realitzat tot l'anàlisi, es pot assegurar que les variables necessàries per a predir si un passatger sobreviu o no són: Sex, Age, Pclass i SibSp. Es pot intuïr que efectivament té sentit que aquestes dades siguin les necessàries, ja que depenent de la edat tindrà més o menys possibilitats de sobreviure. Per una altra banda, si es va donar prioritat a les dones y nens, té sentit que el sexe sigui un factor determinant per a sobreviure. També, depenent de la classe la supervivència varia, ja que es dona proiritat a una classe o a una altra, al igual que al tamany de la família pot afectar. Per contra, variables com on va embarcar o la tarifa del bitllet es pot intuir que no tenen quasi rellevància en la supervivència de la persona.
  
-Generant un model amb aquestes dades som capaços de predir, amb una exactitud del 96,65%, si un passatger sobreviu o no, utilitzant únicament les dades esmentades.
+Generant un model amb aquestes dades som capaços de predir, amb una exactitud del 87%, si un passatger sobreviu o no, utilitzant únicament les dades esmentades.
 
 Per tant, com a conclusió, podem dir que s'ha aconseguit respondre a les preguntes inicials, que era estudiar quines variables tenen més impacte en la taxa de supervivència dels passatgers i, mitjançant aquestes, generar un model adequat per a predir qualsevol altre cas possible.
 
