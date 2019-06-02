@@ -3,13 +3,13 @@ title: 'Pràctica 2: Neteja i validació de les dades'
 author: "Carlos Pérez Martín i Oscar Fernandez Castro"
 date: "18 de mayo de 2019"
 output:
+  pdf_document: default
   html_document: default
   word_document: default
-  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
-data_train<- read.csv('D:/Google Drive/Master Data Science/2018-19_2/Tipologia i cicle de vida de les dades/PRAC2. Neteja i validació de dades/titanic/train.csv',header=T,sep=",", encoding = "UTF-8")
+data_train<- read.csv('C:/Users/vodsk/Desktop/UOC/Topologia i cicle de vida de les dades/PRACTICA2/kaggle-titanic-master/input/train.csv',header=T,sep=",", encoding = "UTF-8")
 str(data_train)
 ```
 
@@ -51,12 +51,10 @@ summary(data_train)
 Per començar unificarem els tres datasets en un per fer la neteja de les dades. Després en cas necessari ja se separaran de nou en conjunts de prova i d'entrenament.
 
 ```{r}
-data_test<- read.csv('D:/Google Drive/Master Data Science/2018-19_2/Tipologia i cicle de vida de les dades/PRAC2. Neteja i validació de dades/titanic/test.csv',header=T,sep=",", encoding = "UTF-8")
-data_sub<-read.csv('D:/Google Drive/Master Data Science/2018-19_2/Tipologia i cicle de vida de les dades/PRAC2. Neteja i validació de dades/titanic/gender_submission.csv',header=T,sep=",", encoding = "UTF-8")
-
+data_test<- read.csv('C:/Users/vodsk/Desktop/UOC/Topologia i cicle de vida de les dades/PRACTICA2/kaggle-titanic-master/input/test.csv',header=T,sep=",", encoding = "UTF-8")
+data_sub<-read.csv('C:/Users/vodsk/Desktop/UOC/Topologia i cicle de vida de les dades/PRACTICA2/kaggle-titanic-master/input/gender_submission.csv',header=T,sep=",", encoding = "UTF-8")
 #unifiquem el dataset de test amb els seus resultats
 data_test <- merge(data_test,data_sub, by="PassengerId")
-
 #juntem les files dels datasets de train i test
 data<-rbind(data_train, data_test)
 ```
@@ -135,7 +133,6 @@ data$Fare[is.na(data$Fare)] <- mean(data$Fare, na.rm=TRUE)
 Busquem valors extrems en els atributs númerics. Comencem amb un mètode molt visualt, el blotpox.
 
 ```{r}
-
 par(mfrow=c(2,2))
 for(i in 2:ncol(data)) #ignorem PassengerId
 {
@@ -145,7 +142,6 @@ for(i in 2:ncol(data)) #ignorem PassengerId
   }
   
 }
-
 ```
 
 
@@ -167,11 +163,12 @@ par(mfrow=c(2,2))
 boxplot(data$Fare[data$Pclass==1], main = "Fare - Pclass=1", width=100) 
 boxplot(data$Fare[data$Pclass==2], main = "Fare - Pclass=2", width=100) 
 boxplot(data$Fare[data$Pclass==3], main = "Fare - Pclass=3", width=100) 
-
 summary(data$Fare[data$Pclass==1])
 summary(data$Fare[data$Pclass==2])
 summary(data$Fare[data$Pclass==3])
 ```
+
+<br>
 Un cop analitzat la tarifa dels bitllets de les diferents classes, observant els valors mitjans, es pot observar una diferència raonable en els preus dels bitllets entre les diferents classes, sent més alta la tarifa a primera classe i més baixa a tercera. Tot i això, sobretot a tercera classe, s'observen uns preus extrems, que podríem considerar erronis, però degut a que no disposem de més informació, decidirem no tractar amb aquests valors, degut a que podría ser correcta aquesta informació.
 
 <H3>4. Anàlisi de les dades.</H3>
@@ -190,7 +187,6 @@ Es vol comparar quins pesos tenen els diferents atributs sobre la supervivenvia 
 Per comprobar la normalitat de les dades fem servir un anàlisi visual (qqplot i histograma) i el test shapiro-wilk.
 
 ```{r}
-
 par(mfrow=c(2,2))
 for(i in 1:ncol(data))
 {
@@ -200,26 +196,40 @@ for(i in 1:ncol(data))
     hist(data[,i], main = colnames(data)[i])
   }
 }
-
 ```
 
-Apliquem l'algoritme de shapiro-wilk.
+Amb una primera ullada, es veu clarament que els atributs SibSp, Parch i Fare no tenen una distribució normal.
+
+Apliquem l'algoritme de shapiro-wilk per l'atribut edat i la prova no paramètrica de wilcox per els atributs Sibsp, Parch i Fare.
 
 ```{r}
 shapiro.test(data$Age)
-shapiro.test(data$SibSp)
-shapiro.test(data$Parch)
-shapiro.test(data$Fare)
+wilcox.test(data$SibSp)
+wilcox.test(data$Parch)
+wilcox.test(data$Fare)
 ```
 
-Els tests de shapiro-wilk ens retornen un p-valor inferior a 0.05 per tant no es compleix la hipòtesis nul·la i per tant les dades no segueixen una distribució normal.
+
+Els test de shapiro-wilk i el de wilcox ens retornen un p-valor inferior a 0.05 per tant no es compleix la hipòtesi nul·la i per tant les dades no segueixen una distribució normal.
 
 Tant els gràfics com el test de shapiro-wilk, ens indiquen que les dades no segueixen una distribució normal. Però sabem pel que diu el teorema del límit central, que si tenim més de 30 distribucions, es pot aproximar a una distribució normal de mitja 0 i desviació estàndard 1.
 
-La neteja de dades realitzada sobre l'atribut edat, ha influït de manera significativa en la distribució de les dades. Tal com es pot veure en els gràfics.
+Ara revisem l'homogeneïtat de la variància. Com no es compleix la condició de normalitat d'algunes mostres, utilitzem la prova de  Fligner-Killen. En aquesta prova la hipòtesis nul·la diu que les variàncies són iguals i que els diferents valors no afecten.
+
+Compararem els atributs en qüestió respecte a l'objectiu de la pràctica que és mesurar la influencia sobre l'atribut survived.
+
+```{r}
+fligner.test(data$Survived ~ data$Age, data=data)
+fligner.test(data$Survived ~ data$SibSp, data=data)
+fligner.test(data$Survived ~ data$Parch, data=data)
+fligner.test(data$Survived ~ data$Fare, data=data)
+```
+
+Els resultats ens mostren que la variància de la superviencia és similar pels atributs age i fare, pero que varia pels diferents valors de SibSp i Parch.
+
 
 ```{r setup2, include=FALSE}
-write.csv(data,'D:/Google Drive/Master Data Science/2018-19_2/Tipologia i cicle de vida de les dades/PRAC2. Neteja i validació de dades/titanic/dataOut.csv',row.names=FALSE)
+write.csv(data,'C:/Users/vodsk/Desktop/UOC/Topologia i cicle de vida de les dades/PRACTICA2/kaggle-titanic-master/input/dataOut.csv',row.names=FALSE)
 ```
 
 <H3>4.3. Aplicació de proves estadístiques per comparar els grups de dades. En funció de les dades i de l’objectiu de l’estudi, aplicar proves de contrast d’hipòtesis,
@@ -231,7 +241,6 @@ El primer model creat, per a predir si un passatger sobreviu o no, serà un mode
 ```{r}
 train<-data[1:891,]
 test<-data[892:1309,]
-
 library(C50)
 vars<-c("Pclass","Sex","Age","SibSp","Parch","Fare")
 str(data[c(vars,"Survived")])
@@ -254,6 +263,32 @@ table(test$Survived,Predicted=p1)
 ```
 Com es pot observar, mitjançant aquest model, dels  passatgers que no van sobreviure, classifica 254 casos com a que no sobreviuen, y 12 que sí, mentre que dels que sí van sobreviure, classifica 146 com a que sobreviuen y nomès 12 que no. Per tant, el model de classificació generat es bastant acurat i permet predir de forma bastant exacta si un passatger va sobreviure o no.
 
+<H4>Contrast d'hipòtesis</H4>
+
+Apliquem el contrast d'hipòtesi als principals atributs per veure quin d'ells és significatiu respecte l'atribut survived.
+
+H0 : µ1 − µ2 = 0<br>
+H1 : µ1 − µ2 > 0
+
+Com a hipòtesi nul·la tenim que el nivell de supervivència de les dades del primer paràmetre és el mateix que les dades del segon paràmetre. Com a hipòtesi alternativa, tenim que les dades del primer fan augmentar el nivell de supervivènvia respecte al segon.
+
+Aplicarem la mateixa hipòtesi als diferents atributs. (amb l'interval de confiança per defecte 0.95)
+
+```{r}
+#wilcex necesita el 1er param númeric
+data$Survived_num <-as.numeric(data$Survived)
+
+wilcox.test(data$Survived_num[data$Sex == "female"], data$Survived_num[data$Sex == "male"], alternative = "greater")
+wilcox.test(data$Survived_num[data$Pclass == "1"], data$Survived_num[data$Pclass == "3"], alternative = "greater")
+wilcox.test(data$Survived_num, data$SibSp, alternative = "greater")
+wilcox.test(data$Survived_num, data$Parch, alternative = "greater")
+wilcox.test(data$Survived_num, data$Fare, alternative = "greater")
+
+
+```
+
+Com els resultats ens mostren, els atributs rellevants que afecten a la supervivencia són Age, Pclass i Fare. Ja que tenim p-valors propers a 0, per tant en aquests casos hem de descartar la hipòtesi nul·la.
+
 <H4>Model de regressió múltiple</H4>
 Ara utilitzarem mètodes de regressió múltiple per esbrinar quins són els atributs que tenen un pes més significatiu en la supervivencia d'una persona.
 
@@ -267,24 +302,20 @@ modelC<-lm(data$Survived ~ data$Sex + data$Age + data$Pclass + data$SibSp)
 modelD<-lm(data$Survived ~ data$Sex + data$Age + data$Pclass + data$SibSp + data$Embarked)
 modelE<-lm(data$Survived ~ data$Sex + data$Age + data$Pclass + data$SibSp + data$Embarked + data$Fare)
 modelF<-lm(data$Survived ~ data$Sex + data$Age + data$Pclass + data$SibSp + data$Embarked + data$Fare + data$Parch)
-
 taulaReg<-matrix(c('A',summary(modelA)$r.squared,
                     'B',summary(modelB)$r.squared,
                     'C',summary(modelC)$r.squared,
                     'D',summary(modelD)$r.squared,
                     'E',summary(modelE)$r.squared,
                     'F',summary(modelF)$r.squared), ncol=2, byrow = TRUE)
-
 colnames(taulaReg)<-c("Model","R^2")
 taulaReg
-
 ```
 
 Els resultats obtinguts no són especialment bons, el millor dels models el F, només explica el 52% dels casos totals, pero la diferencia del model f amb el C és infima, donat que els nous atributs introduits no són significatius. De totes maneres ens es útil per veure com influeixen els atributs en la supervivencia.
 
 ```{r}
 summary(modelF)
-
 ```
 
 Podem veure com els atributs més significatius són el sex, age, Pclass i SibSp. El mòdel ens indica que si el sexe = home les probabilitats de supervivencia cauen de manera significativa, al igual que si esten en segona classe o especialment en la tercera.
@@ -293,9 +324,7 @@ En canvi els atributs Embarked, Fare i Parch són poc significatius a l'hora d'e
 
 ```{r}
 pred<-predict(modelF)
-
 table(data$Survived,pred>0.5)
-
 ```
 
 Depenent del umbral de tall obtindrem més falsos positius o falsos negatius, de totes maneres amb el model obtingut, el nivell d'errors él bastant alt.
@@ -313,7 +342,6 @@ library(caret)
 
 ```{r}
 dataNaiveBayes <- data
-
 dataNaiveBayes <- within(dataNaiveBayes,{
       Parch <- NULL
       Ticket <- NULL
@@ -439,7 +467,6 @@ for (i in 1:folds)
   precision <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] +cm[1,2] + cm[2,1])
   Iter <- rbind(Iter,data.frame(Iter=i,acierto=precision))
 }
-
 prom <- format(mean(Iter$acierto, na.rm=TRUE)*100,digits=4)
 plot(Iter, type = "b", main="% Predicció en cada iteració model NaiveBayes",cex.axis=.7,
      cex.lab=.7, cex.main=.8,xlab="Nombre d'Iteracions",ylab="% Predicció")
@@ -497,7 +524,6 @@ for (i in 1:folds)
   precision <- (cm[1,1] + cm[2,2]) / (cm[1,1] + cm[2,2] +cm[1,2] + cm[2,1])
   Iter <- rbind(Iter,data.frame(Iter=i,acierto=precision))
 }
-
 prom <- format(mean(Iter$acierto, na.rm=TRUE)*100,digits=4)
 plot(Iter, type = "b", main="% Predicció en cada iteració model C50",cex.axis=.7,
      cex.lab=.7, cex.main=.8,xlab="Nombre d'Iteracions",ylab="% Predicció")
