@@ -6,3 +6,8 @@ Creades gràfiques, comparant les dades originals amb les dades predites pel mod
 Afegida validació creuada dels dos models
 Petit comentari als outliers sobre Parch i SibSp
 Petit comentari extra a les conclusions
+
+02/06/2019 Oscar
+Modificat apartat 3. Canviat shapiro per wilcox (no parametric).
+Fet apartat 4 (variància).
+Fet apartat 5 (hipòtesi de contrast)
