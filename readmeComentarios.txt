@@ -11,3 +11,5 @@ Petit comentari extra a les conclusions
 Modificat apartat 3. Canviat shapiro per wilcox (no parametric).
 Fet apartat 4 (variància).
 Fet apartat 5 (hipòtesi de contrast)
+
+Falta la copia a pdf. Que hem falla i ara no trobo la solució que vas enviar.
