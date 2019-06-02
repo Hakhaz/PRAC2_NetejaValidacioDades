@@ -13,3 +13,9 @@ Fet apartat 4 (variància).
 Fet apartat 5 (hipòtesi de contrast)
 
 Falta la copia a pdf. Que hem falla i ara no trobo la solució que vas enviar.
+
+No acabo de veure aquesta frase:
+Com es pot observar, l’eficiència del model d’arbre de classificació es major que la del classificador bayesià. Per tant, concluïm que, per al nostre conjunt de dades, el model més òptim es el model d’arbre de classificació
+
+No dóna millors resultats el bayes?
+Just abans de l'apartat 5.
