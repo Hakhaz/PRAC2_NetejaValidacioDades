@@ -444,7 +444,7 @@ barplot(table(testNaiveBayes$Prediccio[testNaiveBayes$Age == ">65"]), main="Pred
 
 <H4>Validació creuada</H4>
 
-Un cop realitzat l'anàlisi de NaiveBayes, es pot pensar que el conjunt d'entrenament i test no era el més adequat per a realitzar el model. Per tant, es realitzarà un anàlisi de validació creuada per a obtenir un model més acurat a totes les dades existents. Un cop realitzada la validació creuada amb el mètode de NaiveBayes, s'obtenen els següents resultats, obtenint un model amb una predicció del 85.86%.
+Un cop realitzat l'anàlisi de NaiveBayes, es pot pensar que el conjunt d'entrenament i test no era el més adequat per a realitzar el model. Per tant, es realitzarà un anàlisi de validació creuada per a obtenir un model més acurat a totes les dades existents. Un cop realitzada la validació creuada amb el mètode de NaiveBayes, s'obtenen els següents resultats, obtenint un model amb una predicció del 99%.
 
 ```{r include=FALSE}
 library(caret)
@@ -532,8 +532,7 @@ legend("topright",legend=paste("Eficiència de predicció=",prom,"%"),
        col="blue",lty=2,lwd=1,cex=.7, bg=NULL)
 ```
 
-
-Com es pot observar, l'eficiència del model d'arbre de classificació es major que la del classificador bayesià. Per tant, concluïm que, per al nostre conjunt de dades, el model més òptim es el model d'arbre de classificació.
+Com es pot observar, l'eficiència del model del classificador bayesià es major que la de l'arbre de classificació. Per tant, concluïm que, per al nostre conjunt de dades, el model més òptim es el model del classificador bayesià pel mètode NaiveBayes.
 
 
 <H3>5. Representació dels resultats a partir de taules i gràfiques.</H3>
