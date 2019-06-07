@@ -267,8 +267,8 @@ Com es pot observar, mitjançant aquest model, dels  passatgers que no van sobre
 
 Apliquem el contrast d'hipòtesi als principals atributs per veure quin d'ells és significatiu respecte l'atribut survived.
 
-H0 : µ1 − µ2 = 0<br>
-H1 : µ1 − µ2 > 0
+H0 : mu1 − mu2 = 0<br>
+H1 : mu1 − mu2 > 0
 
 Com a hipòtesi nul·la tenim que el nivell de supervivència de les dades del primer paràmetre és el mateix que les dades del segon paràmetre. Com a hipòtesi alternativa, tenim que les dades del primer fan augmentar el nivell de supervivènvia respecte al segon.
 
