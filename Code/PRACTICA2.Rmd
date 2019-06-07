@@ -267,8 +267,8 @@ Com es pot observar, mitjançant aquest model, dels  passatgers que no van sobre
 
 Apliquem el contrast d'hipòtesi als principals atributs per veure quin d'ells és significatiu respecte l'atribut survived.
 
-H0 : mu1 − mu2 = 0<br>
-H1 : mu1 − mu2 > 0
+H0: mu1 - mu2 = 0 <br>
+H1: mu1 - mu2 > 0
 
 Com a hipòtesi nul·la tenim que el nivell de supervivència de les dades del primer paràmetre és el mateix que les dades del segon paràmetre. Com a hipòtesi alternativa, tenim que les dades del primer fan augmentar el nivell de supervivènvia respecte al segon.
 
@@ -277,14 +277,11 @@ Aplicarem la mateixa hipòtesi als diferents atributs. (amb l'interval de confia
 ```{r}
 #wilcex necesita el 1er param númeric
 data$Survived_num <-as.numeric(data$Survived)
-
 wilcox.test(data$Survived_num[data$Sex == "female"], data$Survived_num[data$Sex == "male"], alternative = "greater")
 wilcox.test(data$Survived_num[data$Pclass == "1"], data$Survived_num[data$Pclass == "3"], alternative = "greater")
 wilcox.test(data$Survived_num, data$SibSp, alternative = "greater")
 wilcox.test(data$Survived_num, data$Parch, alternative = "greater")
 wilcox.test(data$Survived_num, data$Fare, alternative = "greater")
-
-
 ```
 
 Com els resultats ens mostren, els atributs rellevants que afecten a la supervivencia són Age, Pclass i Fare. Ja que tenim p-valors propers a 0, per tant en aquests casos hem de descartar la hipòtesi nul·la.
